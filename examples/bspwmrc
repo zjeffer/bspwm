@@ -1,16 +1,24 @@
 #! /bin/sh
 
+# restart sxhkd
 pgrep -x sxhkd > /dev/null || sxhkd &
 
+# define the virtual desktops
 bspc monitor -d I II III IV V VI VII VIII IX X
 
+# window border width 
 bspc config border_width         2
+# gap between tiled windows
 bspc config window_gap          12
 
+# where should a window split upon launching a new application (0.5 == split in half)
 bspc config split_ratio          0.52
+# Remove borders of tiled windows for the monocle desktop layout.
 bspc config borderless_monocle   true
+# Remove gaps of tiled windows for the monocle desktop layout.
 bspc config gapless_monocle      true
 
+# add rules to specific windows
 bspc rule -a Gimp desktop='^8' state=floating follow=on
 bspc rule -a Chromium desktop='^2'
 bspc rule -a mplayer2 state=floating
