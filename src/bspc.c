@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
 	// TODO: describe what this does
 	sock_address.sun_family = AF_UNIX;
-	// TODO: what does sp stand for? sun path?
+	// TODO: what does sp stand for? socket path? sun path?
 	char *sp;
 
 	// Try to open a socket connection
@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
 
 	sp = getenv(SOCKET_ENV_VAR);
 	if (sp != NULL) {
+		// save sp to sock_address.sun_path
 		snprintf(sock_address.sun_path, sizeof(sock_address.sun_path), "%s", sp);
 	} else {
 		char *host = NULL;
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
 
 	// while at least one of the 2 descriptors return events (0 == timeout, -1 == error)
 	while (poll(fds, 2, -1) > 0) {
-		// if bspc receives data from bspwm
+		// if bspc receives data from bspwm (sock_fd)
 		if (fds[0].revents & POLLIN) {
 			// if the number of received bytes > 0, store the response in rsp
 			if ((nb = recv(sock_fd, rsp, sizeof(rsp)-1, 0)) > 0) {

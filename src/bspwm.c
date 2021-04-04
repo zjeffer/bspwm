@@ -51,11 +51,13 @@
 #include "query.h"
 #include "bspwm.h"
 
+// the X display
 xcb_connection_t *dpy;
 int default_screen, screen_width, screen_height;
 uint32_t clients_count;
 xcb_screen_t *screen;
 xcb_window_t root;
+// path to the config file
 char config_path[MAXLEN];
 
 monitor_t *mon;
@@ -103,26 +105,34 @@ int main(int argc, char *argv[])
 	char *end;
 	int opt;
 
+	// get commandline arguments
 	while ((opt = getopt(argc, argv, "hvc:s:o:")) != -1) {
 		switch (opt) {
 			case 'h':
+				// print usage and exit
 				printf(WM_NAME " [-h|-v|-c CONFIG_PATH]\n");
 				exit(EXIT_SUCCESS);
 				break;
 			case 'v':
+				// print version and exit
 				printf("%s\n", VERSION);
 				exit(EXIT_SUCCESS);
 				break;
 			case 'c':
+				// set the config_path to the argument given with -c
 				snprintf(config_path, sizeof(config_path), "%s", optarg);
 				break;
 			case 's':
 				run_level |= 1;
+				// set the state_path to the argument given with -s
 				snprintf(state_path, sizeof(state_path), "%s", optarg);
 				break;
 			case 'o':
 				run_level |= 2;
+				// parse the input as an integer (base 0) until the first letter
+				// if no letters: end == the null terminator
 				sock_fd = strtol(optarg, &end, 0);
+				// if there are letters in the input
 				if (*end != '\0') {
 					sock_fd = -1;
 				}
@@ -130,15 +140,20 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// if config path not given, get the default from XDG_CONFIG_HOME
 	if (config_path[0] == '\0') {
 		char *config_home = getenv(CONFIG_HOME_ENV);
 		if (config_home != NULL) {
+			// if XDG_CONFIG_HOME is defined, save it to config_path
 			snprintf(config_path, sizeof(config_path), "%s/%s/%s", config_home, WM_NAME, CONFIG_NAME);
 		} else {
+			// if it isn't defined, save ~/.config/ to config_path
 			snprintf(config_path, sizeof(config_path), "%s/%s/%s/%s", getenv("HOME"), ".config", WM_NAME, CONFIG_NAME);
 		}
 	}
 
+	// connect to the X server (displayname = NULL => use the DISPLAY envar)
+	// default screen will be set to 0
 	dpy = xcb_connect(NULL, &default_screen);
 
 	if (!check_connection(dpy)) {
@@ -148,6 +163,7 @@ int main(int argc, char *argv[])
 	load_settings();
 	setup();
 
+	// if state_path is not set
 	if (state_path[0] != '\0') {
 		restore_state(state_path);
 		unlink(state_path);
@@ -155,6 +171,7 @@ int main(int argc, char *argv[])
 
 	dpy_fd = xcb_get_file_descriptor(dpy);
 
+	// if socket does not yet exist
 	if (sock_fd == -1) {
 		char *sp = getenv(SOCKET_ENV_VAR);
 		if (sp != NULL) {
@@ -173,6 +190,7 @@ int main(int argc, char *argv[])
 			err("Couldn't write the socket path.\n");
 		}
 
+		// create the socket
 		sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 
 		if (sock_fd == -1) {
@@ -190,6 +208,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// install signal handlers for every signal
 	signal(SIGINT, sig_handler);
 	signal(SIGHUP, sig_handler);
 	signal(SIGTERM, sig_handler);
@@ -199,10 +218,12 @@ int main(int argc, char *argv[])
 	running = true;
 
 	while (running) {
-
+		// flush buffered output to the display server
 		xcb_flush(dpy);
 
+		// clear the descriptors fd_set
 		FD_ZERO(&descriptors);
+		// add sock_fd and dpy_fd to the descriptors fd_set
 		FD_SET(sock_fd, &descriptors);
 		FD_SET(dpy_fd, &descriptors);
 		max_fd = MAX(sock_fd, dpy_fd);
