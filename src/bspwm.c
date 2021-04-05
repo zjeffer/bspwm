@@ -51,7 +51,7 @@
 #include "query.h"
 #include "bspwm.h"
 
-// the X display
+// the X display connection
 xcb_connection_t *dpy;
 int default_screen, screen_width, screen_height;
 uint32_t clients_count;
@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 	char state_path[MAXLEN] = {0};
 	int run_level = 0;
 	config_path[0] = '\0';
+	// file descriptors
 	int sock_fd = -1, cli_fd, dpy_fd, max_fd, n;
 	struct sockaddr_un sock_address;
 	char msg[BUFSIZ] = {0};
@@ -174,14 +175,24 @@ int main(int argc, char *argv[])
 	// if socket does not yet exist
 	if (sock_fd == -1) {
 		char *sp = getenv(SOCKET_ENV_VAR);
+		// if the BSPWM_SOCKET env is already set
 		if (sp != NULL) {
+			// set socket_path to the value of sp
 			snprintf(socket_path, sizeof(socket_path), "%s", sp);
 		} else {
+			// pointer to a malloc'd copy of the hostname
 			char *host = NULL;
-			int dn = 0, sn = 0;
+			// display number
+			int dn = 0;
+			// screen number
+			int sn = 0;
+			// if xcb successfully parses the display
+			// display name == NULL => uses $DISPLAY
 			if (xcb_parse_display(NULL, &host, &dn, &sn) != 0) {
+				// set the socket path to SOCKET_PATH_TPL, injected with host, dn and sn
 				snprintf(socket_path, sizeof(socket_path), SOCKET_PATH_TPL, host, dn, sn);
 			}
+			// free the host pointer
 			free(host);
 		}
 
@@ -190,7 +201,7 @@ int main(int argc, char *argv[])
 			err("Couldn't write the socket path.\n");
 		}
 
-		// create the socket
+		// create a stream socket
 		sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 
 		if (sock_fd == -1) {
@@ -199,10 +210,13 @@ int main(int argc, char *argv[])
 
 		unlink(socket_path);
 
+		// give the socket fd 
 		if (bind(sock_fd, (struct sockaddr *) &sock_address, sizeof(sock_address)) == -1) {
 			err("Couldn't bind a name to the socket.\n");
 		}
 
+		// listen to connections
+		// SOMAXCONN = maximum amount of connnections in queue
 		if (listen(sock_fd, SOMAXCONN) == -1) {
 			err("Couldn't listen to the socket.\n");
 		}
@@ -500,6 +514,7 @@ void cleanup(void)
 	empty_history();
 }
 
+// check if the display connected successfully 
 bool check_connection (xcb_connection_t *dpy)
 {
 	int xerr;
