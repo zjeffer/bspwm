@@ -27,6 +27,7 @@
 #include "settings.h"
 #include "geometry.h"
 
+// returns if is a point inside a rectangle
 bool is_inside(xcb_point_t p, xcb_rectangle_t r)
 {
 	return (p.x >= r.x && p.x < (r.x + r.width) &&
@@ -40,6 +41,7 @@ bool contains(xcb_rectangle_t a, xcb_rectangle_t b)
 	        a.y <= b.y && (a.y + a.height) >= (b.y + b.height));
 }
 
+// calculates the area of a rectangle
 unsigned int area(xcb_rectangle_t r)
 {
 	return r.width * r.height;
@@ -153,24 +155,31 @@ bool on_dir_side(xcb_rectangle_t r1, xcb_rectangle_t r2, direction_t dir)
 	}
 }
 
+// returns if two rectangles are equal in size and position
 bool rect_eq(xcb_rectangle_t a, xcb_rectangle_t b)
 {
 	return (a.x == b.x && a.y == b.y &&
 	        a.width == b.width && a.height == b.height);
 }
 
+// compare the positions of two rectangles
 int rect_cmp(xcb_rectangle_t r1, xcb_rectangle_t r2)
 {
 	if (r1.y >= (r2.y + r2.height)) {
+		// if r1 is above r2
 		return 1;
 	} else if (r2.y >= (r1.y + r1.height)) {
+		// if r2 is above r1
 		return -1;
 	} else {
 		if (r1.x >= (r2.x + r2.width)) {
+			// if r1 is to the right of r2
 			return 1;
 		} else if (r2.x >= (r1.x + r1.width)) {
+			// if r2 is to the right of r1
 			return -1;
 		} else {
+			// if the rectangle overlap: return the difference in area
 			return area(r2) - area(r1);
 		}
 	}

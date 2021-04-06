@@ -98,8 +98,12 @@ int main(int argc, char *argv[])
 	char state_path[MAXLEN] = {0};
 	int run_level = 0;
 	config_path[0] = '\0';
-	// file descriptors
-	int sock_fd = -1, cli_fd, dpy_fd, max_fd, n;
+	// socket file descriptor
+	int sock_fd = -1;
+	int cli_fd;
+	// file descriptor for the display connection
+	int dpy_fd;
+	int max_fd, n;
 	struct sockaddr_un sock_address;
 	char msg[BUFSIZ] = {0};
 	xcb_generic_event_t *event;
@@ -240,6 +244,7 @@ int main(int argc, char *argv[])
 		// add sock_fd and dpy_fd to the descriptors fd_set
 		FD_SET(sock_fd, &descriptors);
 		FD_SET(dpy_fd, &descriptors);
+
 		max_fd = MAX(sock_fd, dpy_fd);
 
 		for (pending_rule_t *pr = pending_rule_head; pr != NULL; pr = pr->next) {
@@ -249,22 +254,28 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		// if any file descriptors in the descriptors set are ready to read
+		// first argument should be set to the highest-numbered fd + 1
 		if (select(max_fd + 1, &descriptors, NULL, NULL, NULL) > 0) {
-
+			// enumerate all pending rules
 			pending_rule_t *pr = pending_rule_head;
 			while (pr != NULL) {
 				pending_rule_t *next = pr->next;
+				// if the pr's file descriptor is part of the descriptors fd_set
 				if (FD_ISSET(pr->fd, &descriptors)) {
 					if (manage_window(pr->win, pr->csq, pr->fd)) {
 						for (event_queue_t *eq = pr->event_head; eq != NULL; eq = eq->next) {
 							handle_event(&eq->event);
 						}
 					}
+					// pr has been handled, it can be removed
 					remove_pending_rule(pr);
 				}
+				// now handle the next pr
 				pr = next;
 			}
 
+			// check if sock_fd is part of the descriptors fd_set
 			if (FD_ISSET(sock_fd, &descriptors)) {
 				cli_fd = accept(sock_fd, NULL, 0);
 				if (cli_fd > 0 && (n = recv(cli_fd, msg, sizeof(msg)-1, 0)) > 0) {
@@ -279,6 +290,7 @@ int main(int argc, char *argv[])
 				}
 			}
 
+			// check if the display connection's fd is part of the descriptors fd_set
 			if (FD_ISSET(dpy_fd, &descriptors)) {
 				while ((event = xcb_poll_for_event(dpy)) != NULL) {
 					handle_event(event);
@@ -350,6 +362,7 @@ int main(int argc, char *argv[])
 	return exit_status;
 }
 
+// set variables to their initial values
 void init(void)
 {
 	clients_count = 0;
@@ -371,12 +384,14 @@ void setup(void)
 	ewmh_init();
 	pointer_init();
 
+	// get the default screen
 	screen = xcb_setup_roots_iterator(xcb_get_setup(dpy)).data;
 
 	if (screen == NULL) {
 		err("Can't acquire the default screen.\n");
 	}
 
+	// set the root window
 	root = screen->root;
 	register_events();
 
