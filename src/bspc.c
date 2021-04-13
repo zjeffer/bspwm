@@ -48,9 +48,8 @@ int main(int argc, char *argv[])
 		err("No arguments given.\n");
 	}
 
-	// TODO: describe what this does
 	sock_address.sun_family = AF_UNIX;
-	// TODO: what does sp stand for? socket path? sun path?
+	// The socket path
 	char *sp;
 
 	// Try to open a socket connection
@@ -135,6 +134,6 @@ int main(int argc, char *argv[])
 
 	// close the socket
 	close(sock_fd);
-	// return 
+	// return
 	return ret;
 }

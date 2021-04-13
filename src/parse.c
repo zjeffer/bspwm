@@ -5,6 +5,18 @@
 #include <errno.h>
 #include "parse.h"
 
+/*
+	In this file, every function has:
+
+	1) A string to parse
+	2) A pointer to a variable to store the parsed value in
+	3) A boolean return value, indicating if the value is parseable
+
+	Every function parses the given string to a certain type
+	and stores that parsed value in a variable
+
+ */
+
 bool parse_bool(char *value, bool *b)
 {
 	if (streq("true", value) || streq("on", value)) {

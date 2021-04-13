@@ -73,16 +73,27 @@ bool remove_disabled_monitors;
 bool remove_unplugged_monitors;
 bool merge_overlapping_monitors;
 
+// execute bspwm's config file
+// this method runs in a different process
 void run_config(int run_level)
 {
+	// create a new process
+	// in the created child process (PID==0):
 	if (fork() == 0) {
 		if (dpy != NULL) {
+			// close the display connection's file descriptor
 			close(xcb_get_file_descriptor(dpy));
 		}
+		// decouple the child from the parent
+		// the pid of the parent now is now 1 (init)
 		setsid();
+		// variable to store the run_level
 		char arg1[2];
+		// cast run_level to string
 		snprintf(arg1, 2, "%i", run_level);
+		// execute the config file, with the given run_level (list of arguments must be terminated with a NULL pointer)
 		execl(config_path, config_path, arg1, (char *) NULL);
+		// the exec functions only return when an error occurs, if that happens:
 		err("Couldn't execute the configuration file.\n");
 	}
 }
