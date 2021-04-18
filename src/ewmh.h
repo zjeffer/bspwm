@@ -29,9 +29,30 @@
 
 extern xcb_ewmh_connection_t *ewmh;
 
+/**
+ * @brief Initialize ewmh
+ *
+ */
 void ewmh_init(void);
+
+/**
+ * @brief Update ewmh with the currently active window
+ *
+ */
 void ewmh_update_active_window(void);
+
+/**
+ * @brief Update ewmh with the amount of desktops
+ *
+ */
 void ewmh_update_number_of_desktops(void);
+
+/**
+ * @brief Get the index for a given desktop
+ *
+ * @param d A pointer to a desktop
+ * @return uint32_t the desktop's id, or 0 if not found
+ */
 uint32_t ewmh_get_desktop_index(desktop_t *d);
 bool ewmh_locate_desktop(uint32_t i, coordinates_t *loc);
 void ewmh_update_current_desktop(void);

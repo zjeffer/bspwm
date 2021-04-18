@@ -43,7 +43,9 @@ void ewmh_init(void)
 
 void ewmh_update_active_window(void)
 {
+	// select the current focused window, or XCB_NONE if no window is focused
 	xcb_window_t win = ((mon->desk->focus == NULL || mon->desk->focus->client == NULL) ? XCB_NONE : mon->desk->focus->id);
+	// update ewmh with the selected window
 	xcb_ewmh_set_active_window(ewmh, default_screen, win);
 }
 
@@ -51,25 +53,31 @@ void ewmh_update_number_of_desktops(void)
 {
 	uint32_t desktops_count = 0;
 
+	// for all monitors
 	for (monitor_t *m = mon_head; m != NULL; m = m->next) {
+		// count all desktops on that monitor
 		for (desktop_t *d = m->desk_head; d != NULL; d = d->next) {
 			desktops_count++;
 		}
 	}
 
+	// update ewmh with the new count
 	xcb_ewmh_set_number_of_desktops(ewmh, default_screen, desktops_count);
 }
 
 uint32_t ewmh_get_desktop_index(desktop_t *d)
 {
 	uint32_t i = 0;
+	// enumerate all monitors to find the given desktop
 	for (monitor_t *m = mon_head; m != NULL; m = m->next) {
 		for (desktop_t *cd = m->desk_head; cd != NULL; cd = cd->next, i++) {
 			if (d == cd) {
+				// return the index if the desktop is found
 				return i;
 			}
 		}
 	}
+	// if the given desktop was not found
 	return 0;
 }
 

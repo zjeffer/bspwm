@@ -88,10 +88,36 @@ extern bool running;
 extern bool restart;
 extern bool randr;
 
+/**
+ * @brief set variables to their initial values
+ *
+ */
 void init(void);
+
+/**
+ * @brief
+ *
+ */
 void setup(void);
+
+/**
+ * @brief
+ *
+ */
 void register_events(void);
+
+/**
+ * @brief Cleanup all monitors, rules, subscribers, and empty the history.
+ *
+ */
 void cleanup(void);
+
+/**
+ * @brief check if the display connected successfully
+ *
+ * @param dpy The XCB display connection
+ * @return true if the given display connected without errors, otherwise false
+ */
 bool check_connection (xcb_connection_t *dpy);
 void sig_handler(int sig);
 uint32_t get_color_pixel(const char *color);

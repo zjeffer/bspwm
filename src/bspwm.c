@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
 
 		unlink(socket_path);
 
-		// give the socket fd 
+		// give the socket fd
 		if (bind(sock_fd, (struct sockaddr *) &sock_address, sizeof(sock_address)) == -1) {
 			err("Couldn't bind a name to the socket.\n");
 		}
@@ -362,7 +362,6 @@ int main(int argc, char *argv[])
 	return exit_status;
 }
 
-// set variables to their initial values
 void init(void)
 {
 	clients_count = 0;
@@ -511,25 +510,30 @@ void register_events(void)
 
 void cleanup(void)
 {
+	// unset the focused monitor
 	mon = NULL;
 
+	// remove all monitors
 	while (mon_head != NULL) {
 		remove_monitor(mon_head);
 	}
+	// remove all rules
 	while (rule_head != NULL) {
 		remove_rule(rule_head);
 	}
+	// remove all subscribers
 	while (subscribe_head != NULL) {
 		remove_subscriber(subscribe_head);
 	}
+	// remove all pending rules
 	while (pending_rule_head != NULL) {
 		remove_pending_rule(pending_rule_head);
 	}
 
+	// empty the history
 	empty_history();
 }
 
-// check if the display connected successfully 
 bool check_connection (xcb_connection_t *dpy)
 {
 	int xerr;
