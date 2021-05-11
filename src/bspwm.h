@@ -113,10 +113,10 @@ void register_events(void);
 void cleanup(void);
 
 /**
- * @brief check if the display connected successfully
+ * @brief Check if the connection is still connected
  *
  * @param dpy The XCB display connection
- * @return true if the given display connected without errors, otherwise false
+ * @return true if the given display is still without errors, otherwise false
  */
 bool check_connection (xcb_connection_t *dpy);
 void sig_handler(int sig);

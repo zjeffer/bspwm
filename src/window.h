@@ -61,17 +61,94 @@ void window_move(xcb_window_t win, int16_t x, int16_t y);
 void window_resize(xcb_window_t win, uint16_t w, uint16_t h);
 void window_move_resize(xcb_window_t win, int16_t x, int16_t y, uint16_t w, uint16_t h);
 void window_center(monitor_t *m, client_t *c);
+
+/**
+ * @brief TODO
+ *
+ * @param w1
+ * @param w2
+ * @param mode
+ */
 void window_stack(xcb_window_t w1, xcb_window_t w2, uint32_t mode);
+
+/**
+ * @brief Stack w2 below w1
+ *
+ * @param w1
+ * @param w2
+ */
 void window_above(xcb_window_t w1, xcb_window_t w2);
+
+/**
+ * @brief Stack w1 below w2
+ *
+ * @param w1
+ * @param w2
+ */
 void window_below(xcb_window_t w1, xcb_window_t w2);
+
+/**
+ * @brief Move the window to the bottom of the stack
+ *
+ * @param win the window to lower
+ */
 void window_lower(xcb_window_t win);
+
+/**
+ * @brief Set the visibility for the given window
+ *
+ * @param win the window
+ * @param visible true: set window visible, else invisible
+ */
 void window_set_visibility(xcb_window_t win, bool visible);
+
+/**
+ * @brief Set the given window's visiblity to false
+ *
+ * @param win the window
+ */
 void window_hide(xcb_window_t win);
+
+/**
+ * @brief Set the given window's visiblity to true
+ *
+ * @param win the window
+ */
 void window_show(xcb_window_t win);
+
+/**
+ * @brief Set the input focus to the currently focused node
+ * (to prevent input focus stealing)
+ *
+ */
 void update_input_focus(void);
+
+/**
+ * @brief Set the focus to the given node
+ *
+ * @param n The node to give focus to
+ */
 void set_input_focus(node_t *n);
+
+/**
+ * @brief Set the focus to root
+ *
+ */
 void clear_input_focus(void);
+
+/**
+ * @brief Move the pointer to the center of the given rectangle
+ *
+ * @param r the rectangle to center the pointer in
+ */
 void center_pointer(xcb_rectangle_t r);
+
+/**
+ * @brief Get the atom by name
+ *
+ * @param name name of the atom
+ * @param atom pointer to the xcb_atom_t object
+ */
 void get_atom(char *name, xcb_atom_t *atom);
 void set_atom(xcb_window_t win, xcb_atom_t atom, uint32_t value);
 void send_client_message(xcb_window_t win, xcb_atom_t property, xcb_atom_t value);

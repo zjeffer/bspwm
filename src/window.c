@@ -874,13 +874,11 @@ void window_stack(xcb_window_t w1, xcb_window_t w2, uint32_t mode)
 	xcb_configure_window(dpy, w1, mask, values);
 }
 
-/* Stack w1 above w2 */
 void window_above(xcb_window_t w1, xcb_window_t w2)
 {
 	window_stack(w1, w2, XCB_STACK_MODE_ABOVE);
 }
 
-/* Stack w1 below w2 */
 void window_below(xcb_window_t w1, xcb_window_t w2)
 {
 	window_stack(w1, w2, XCB_STACK_MODE_BELOW);
@@ -945,8 +943,10 @@ void center_pointer(xcb_rectangle_t r)
 	if (grabbing) {
 		return;
 	}
+	// calculate the
 	int16_t cx = r.x + r.width / 2;
 	int16_t cy = r.y + r.height / 2;
+	// move the mouse pointer to the calculated position
 	xcb_warp_pointer(dpy, XCB_NONE, root, 0, 0, 0, 0, cx, cy);
 }
 

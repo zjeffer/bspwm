@@ -89,7 +89,7 @@ void run_config(int run_level)
 		setsid();
 		// variable to store the run_level
 		char arg1[2];
-		// cast run_level to string
+		// cast run_level to string of length 2
 		snprintf(arg1, 2, "%i", run_level);
 		// execute the config file, with the given run_level (list of arguments must be terminated with a NULL pointer)
 		execl(config_path, config_path, arg1, (char *) NULL);

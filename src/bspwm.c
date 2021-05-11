@@ -145,14 +145,14 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	// if config path not given, get the default from XDG_CONFIG_HOME
+	// if config path not given through parameters, get the default from XDG_CONFIG_HOME
 	if (config_path[0] == '\0') {
 		char *config_home = getenv(CONFIG_HOME_ENV);
 		if (config_home != NULL) {
-			// if XDG_CONFIG_HOME is defined, save it to config_path
+			// if XDG_CONFIG_HOME is defined, set config_path to XDG_CONFIG_HOME/bspwm/rc
 			snprintf(config_path, sizeof(config_path), "%s/%s/%s", config_home, WM_NAME, CONFIG_NAME);
 		} else {
-			// if it isn't defined, save ~/.config/ to config_path
+			// if it isn't defined, set config_path to ~/.config/bspwm/rc
 			snprintf(config_path, sizeof(config_path), "%s/%s/%s/%s", getenv("HOME"), ".config", WM_NAME, CONFIG_NAME);
 		}
 	}
@@ -161,10 +161,12 @@ int main(int argc, char *argv[])
 	// default screen will be set to 0
 	dpy = xcb_connect(NULL, &default_screen);
 
+	// if connection failed, exit
 	if (!check_connection(dpy)) {
 		exit(EXIT_FAILURE);
 	}
 
+	// set the default settings
 	load_settings();
 	setup();
 
@@ -232,6 +234,7 @@ int main(int argc, char *argv[])
 	signal(SIGTERM, sig_handler);
 	signal(SIGCHLD, sig_handler);
 	signal(SIGPIPE, SIG_IGN);
+	// execute bspwm's config file
 	run_config(run_level);
 	running = true;
 
@@ -300,6 +303,7 @@ int main(int argc, char *argv[])
 
 		}
 
+		// if the connection fails, stop running
 		if (!check_connection(dpy)) {
 			running = false;
 		}
@@ -328,6 +332,7 @@ int main(int argc, char *argv[])
 	xcb_flush(dpy);
 	xcb_disconnect(dpy);
 
+	// if bspwm is restarting, restart with the same cmdline args
 	if (restart) {
 		int rargc;
 		for (rargc = 0; rargc < argc; rargc++) {
@@ -383,32 +388,39 @@ void setup(void)
 	ewmh_init();
 	pointer_init();
 
-	// get the default screen
+	// obtain setup info and access the screen
 	screen = xcb_setup_roots_iterator(xcb_get_setup(dpy)).data;
-
 	if (screen == NULL) {
 		err("Can't acquire the default screen.\n");
 	}
 
-	// set the root window
+	// get the root window
 	root = screen->root;
 	register_events();
 
 	screen_width = screen->width_in_pixels;
 	screen_height = screen->height_in_pixels;
 
+	// allocate an XID for the new meta_window object
 	meta_window = xcb_generate_id(dpy);
+	// create the meta_window
 	xcb_create_window(dpy, XCB_COPY_FROM_PARENT, meta_window, root, -1, -1, 1, 1, 0, XCB_WINDOW_CLASS_INPUT_ONLY, XCB_COPY_FROM_PARENT, XCB_NONE, NULL);
+	// set the wm class to META_WINDOW_IC
 	xcb_icccm_set_wm_class(dpy, meta_window, sizeof(META_WINDOW_IC), META_WINDOW_IC);
 
+	// allocate a new XID for the motion recorder
 	motion_recorder.id = xcb_generate_id(dpy);
 	motion_recorder.sequence = 0;
+	// disabled by default
 	motion_recorder.enabled = false;
 	uint32_t values[] = {XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_POINTER_MOTION};
+	// create the motion recorder window
 	xcb_create_window(dpy, XCB_COPY_FROM_PARENT, motion_recorder.id, root, 0, 0, 1, 1, 0,
 	                  XCB_WINDOW_CLASS_INPUT_ONLY, XCB_COPY_FROM_PARENT, XCB_CW_EVENT_MASK, values);
+	// set the wm_class to MOTION_RECORDER_IC
 	xcb_icccm_set_wm_class(dpy, motion_recorder.id, sizeof(MOTION_RECORDER_IC), MOTION_RECORDER_IC);
 
+	// define supported emwh atoms
 	xcb_atom_t net_atoms[] = {ewmh->_NET_SUPPORTED,
 	                          ewmh->_NET_SUPPORTING_WM_CHECK,
 	                          ewmh->_NET_DESKTOP_NAMES,
@@ -434,10 +446,11 @@ void setup(void)
 	                          ewmh->_NET_WM_WINDOW_TYPE_DIALOG,
 	                          ewmh->_NET_WM_WINDOW_TYPE_UTILITY,
 	                          ewmh->_NET_WM_WINDOW_TYPE_TOOLBAR};
-
+	// set the supported emwh atoms
 	xcb_ewmh_set_supported(ewmh, default_screen, LENGTH(net_atoms), net_atoms);
 	ewmh_set_supporting(meta_window);
 
+	// get all atoms
 #define GETATOM(a) \
 	get_atom(#a, &a);
 	GETATOM(WM_STATE)
@@ -446,6 +459,7 @@ void setup(void)
 #undef GETATOM
 
 	const xcb_query_extension_reply_t *qep = xcb_get_extension_data(dpy, &xcb_randr_id);
+	// if the extension is present on this X server && if monitors are successfully updated
 	if (qep->present && update_monitors()) {
 		randr = true;
 		randr_base = qep->first_event;
