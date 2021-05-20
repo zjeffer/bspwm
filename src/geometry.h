@@ -28,12 +28,69 @@
 #include <stdbool.h>
 #include <xcb/xcb.h>
 
+/**
+ * @brief returns true if the given point is inside the given rectangle
+ *
+ * @param p the point
+ * @param r the rectangle
+ * @return true if p is inside r
+ */
 bool is_inside(xcb_point_t p, xcb_rectangle_t r);
+
+/**
+ * @brief Returns true if rectangle a contains rectangle b
+ *
+ * @param a the outer rectangle
+ * @param b the inner rectangle
+ * @return true if a is inside b
+ */
 bool contains(xcb_rectangle_t a, xcb_rectangle_t b);
+
+/**
+ * @brief Calculate the area of a rectangle
+ *
+ * @param r the rectangle
+ * @return unsigned int, the area of the given rectangle
+ */
 unsigned int area(xcb_rectangle_t r);
+
+/**
+ * @brief Distance between the `dir` edge of `r1` and the `opposite(dir)` edge of `r2`.
+ *
+ * @param r1 the first rectangle
+ * @param r2 the second rectangle
+ * @param dir the direction (north/west/south/east)
+ * @return uint32_t, the distance between the edges
+ */
 uint32_t boundary_distance(xcb_rectangle_t r1, xcb_rectangle_t r2, direction_t dir);
+
+/**
+ * @brief Is `r2` on the `dir` side of `r1`?
+ *
+ * @param r1 the first rectangle
+ * @param r2 the second rectangle
+ * @param dir the direction (north/west/south/east)
+ * @return true
+ */
 bool on_dir_side(xcb_rectangle_t r1, xcb_rectangle_t r2, direction_t dir);
+
+/**
+ * @brief Compare if two rectangles (a and b) are equal in size and position
+ *
+ * @param a rectangle a
+ * @param b rectangle b
+ * @return true if the two rectangles are equal
+ */
 bool rect_eq(xcb_rectangle_t a, xcb_rectangle_t b);
+
+/**
+ * @brief Compare the positions of two rectangles
+ *
+ * @param r1 the first rectangle
+ * @param r2 the second rectangle
+ * @return integer, 1 if r1 is above or to the right of r2, -1 if r1 is below or to the left of r2.
+ * If the rectangles overlap, return the area difference
+ */
 int rect_cmp(xcb_rectangle_t r1, xcb_rectangle_t r2);
 
 #endif

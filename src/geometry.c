@@ -27,27 +27,23 @@
 #include "settings.h"
 #include "geometry.h"
 
-// returns if is a point inside a rectangle
 bool is_inside(xcb_point_t p, xcb_rectangle_t r)
 {
 	return (p.x >= r.x && p.x < (r.x + r.width) &&
 	        p.y >= r.y && p.y < (r.y + r.height));
 }
 
-/* Returns true if a contains b */
 bool contains(xcb_rectangle_t a, xcb_rectangle_t b)
 {
 	return (a.x <= b.x && (a.x + a.width) >= (b.x + b.width) &&
 	        a.y <= b.y && (a.y + a.height) >= (b.y + b.height));
 }
 
-// calculates the area of a rectangle
 unsigned int area(xcb_rectangle_t r)
 {
 	return r.width * r.height;
 }
 
-/* Distance between the `dir` edge of `r1` and the `opposite(dir)` edge of `r2`. */
 uint32_t boundary_distance(xcb_rectangle_t r1, xcb_rectangle_t r2, direction_t dir)
 {
 	xcb_point_t r1_max = {r1.x + r1.width - 1, r1.y + r1.height - 1};
@@ -70,7 +66,6 @@ uint32_t boundary_distance(xcb_rectangle_t r1, xcb_rectangle_t r2, direction_t d
 	}
 }
 
-/* Is `r2` on the `dir` side of `r1`? */
 bool on_dir_side(xcb_rectangle_t r1, xcb_rectangle_t r2, direction_t dir)
 {
 	xcb_point_t r1_max = {r1.x + r1.width - 1, r1.y + r1.height - 1};
@@ -155,14 +150,12 @@ bool on_dir_side(xcb_rectangle_t r1, xcb_rectangle_t r2, direction_t dir)
 	}
 }
 
-// returns if two rectangles are equal in size and position
 bool rect_eq(xcb_rectangle_t a, xcb_rectangle_t b)
 {
 	return (a.x == b.x && a.y == b.y &&
 	        a.width == b.width && a.height == b.height);
 }
 
-// compare the positions of two rectangles
 int rect_cmp(xcb_rectangle_t r1, xcb_rectangle_t r2)
 {
 	if (r1.y >= (r2.y + r2.height)) {
