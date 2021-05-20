@@ -31,6 +31,13 @@ bool activate_desktop(monitor_t *m, desktop_t *d);
 bool find_closest_desktop(coordinates_t *ref, coordinates_t *dst, cycle_dir_t dir, desktop_select_t *sel);
 bool find_any_desktop(coordinates_t *ref, coordinates_t *dst, desktop_select_t *sel);
 bool set_layout(monitor_t *m, desktop_t *d, layout_t l, bool user);
+
+/**
+ * @brief Update the preselection feedbacks for the given desktop
+ *
+ * @param m the monitor that contains the desktop
+ * @param d the desktop to update
+ */
 void handle_presel_feedbacks(monitor_t *m, desktop_t *d);
 bool transfer_desktop(monitor_t *ms, monitor_t *md, desktop_t *d, bool follow);
 desktop_t *make_desktop(const char *name, uint32_t id);
@@ -38,12 +45,65 @@ void rename_desktop(monitor_t *m, desktop_t *d, const char *name);
 void insert_desktop(monitor_t *m, desktop_t *d);
 void add_desktop(monitor_t *m, desktop_t *d);
 desktop_t *find_desktop_in(uint32_t id, monitor_t *m);
+
+/**
+ * @brief Unlink the given desktop, updates the linked list
+ *
+ * @param m
+ * @param d
+ */
 void unlink_desktop(monitor_t *m, desktop_t *d);
+
+/**
+ * @brief Remove the given desktop
+ *
+ * @param m the monitor
+ * @param d the desktop
+ */
 void remove_desktop(monitor_t *m, desktop_t *d);
+
+/**
+ * @brief Merge two desktops, transferring all nodes from the source to the destination desktop
+ *
+ * @param ms The source monitor
+ * @param ds The source desktop
+ * @param md The destination monitor
+ * @param dd The destination desktop
+ */
 void merge_desktops(monitor_t *ms, desktop_t *ds, monitor_t *md, desktop_t *dd);
+
+/**
+ * @brief Swap two desktops
+ *
+ * @param m1 the first monitor
+ * @param d1 the first desktop
+ * @param m2 the second monitor
+ * @param d2 the second desktop
+ * @param follow boolean, should the first or second desktop be focused/activated
+ * @return true if succesfully swapped
+ */
 bool swap_desktops(monitor_t *m1, desktop_t *d1, monitor_t *m2, desktop_t *d2, bool follow);
+
+/**
+ * @brief Show the given desktop
+ *
+ * @param d the desktop
+ */
 void show_desktop(desktop_t *d);
+
+/**
+ * @brief Hide the given desktop
+ *
+ * @param d the desktop
+ */
 void hide_desktop(desktop_t *d);
+
+/**
+ * @brief Return true if a desktop has an urgent node
+ *
+ * @param d the desktop to query
+ * @return true if the desktop has at least one urgent node
+ */
 bool is_urgent(desktop_t *d);
 
 #endif

@@ -690,6 +690,7 @@ void hide_node(desktop_t *d, node_t *n)
 void show_node(desktop_t *d, node_t *n)
 {
 	if (n == NULL) {
+		// end of recursion
 		return;
 	} else {
 		if (!n->hidden) {
@@ -703,6 +704,7 @@ void show_node(desktop_t *d, node_t *n)
 		if (n->client != NULL) {
 			n->client->shown = true;
 		}
+		// recursively show the nodes of d's children
 		show_node(d, n->first_child);
 		show_node(d, n->second_child);
 	}

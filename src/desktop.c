@@ -77,6 +77,7 @@ bool find_closest_desktop(coordinates_t *ref, coordinates_t *dst, cycle_dir_t di
 {
 	monitor_t *m = ref->monitor;
 	desktop_t *d = ref->desktop;
+	// get the previous or next desktop, depending on the `dir` parameter
 	d = (dir == CYCLE_PREV ? d->prev : d->next);
 
 #define HANDLE_BOUNDARIES(m, d)  \
@@ -114,6 +115,7 @@ bool find_any_desktop(coordinates_t *ref, coordinates_t *dst, desktop_select_t *
 			}
 		}
 	}
+	// if no desktop found
 	return false;
 }
 

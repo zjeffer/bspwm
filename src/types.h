@@ -242,6 +242,10 @@ struct constraints_t {
 	uint16_t min_height;
 };
 
+/**
+ * @brief A node is a rectangle that contains either zero or two children
+ *
+ */
 typedef struct node_t node_t;
 struct node_t {
 	uint32_t id;
@@ -270,6 +274,11 @@ struct padding_t {
 	int left;
 };
 
+/**
+ * @brief A desktop is a pointer to a tree.
+ * A tree is a partition of the monitor's rectangle into smaller
+ * rectangular regions
+ */
 typedef struct desktop_t desktop_t;
 struct desktop_t {
 	char name[SMALEN];
@@ -285,6 +294,10 @@ struct desktop_t {
 	unsigned int border_width;
 };
 
+/**
+ * @brief A monitor is a rectangle that contains desktops
+ *
+ */
 typedef struct monitor_t monitor_t;
 struct monitor_t {
 	char name[SMALEN];

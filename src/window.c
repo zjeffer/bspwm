@@ -345,11 +345,14 @@ void refresh_presel_feedbacks(monitor_t *m, desktop_t *d, node_t *n)
 void show_presel_feedbacks(monitor_t *m, desktop_t *d, node_t *n)
 {
 	if (n == NULL) {
+		// end of recursion
 		return;
 	} else {
+		// show preselection feedback
 		if (n->presel != NULL) {
 			window_show(n->presel->feedback);
 		}
+		// recursively show the feedbacks of the node's children
 		show_presel_feedbacks(m, d, n->first_child);
 		show_presel_feedbacks(m, d, n->second_child);
 	}
@@ -358,11 +361,14 @@ void show_presel_feedbacks(monitor_t *m, desktop_t *d, node_t *n)
 void hide_presel_feedbacks(monitor_t *m, desktop_t *d, node_t *n)
 {
 	if (n == NULL) {
+		// end of recursion
 		return;
 	} else {
+		// hide preselection feedback
 		if (n->presel != NULL) {
 			window_hide(n->presel->feedback);
 		}
+		// recursively hide the feedbacks of the node's children
 		hide_presel_feedbacks(m, d, n->first_child);
 		hide_presel_feedbacks(m, d, n->second_child);
 	}

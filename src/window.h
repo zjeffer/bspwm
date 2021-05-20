@@ -39,13 +39,45 @@ bool is_presel_window(xcb_window_t win);
 void initialize_presel_feedback(node_t *n);
 void draw_presel_feedback(monitor_t *m, desktop_t *d, node_t *n);
 void refresh_presel_feedbacks(monitor_t *m, desktop_t *d, node_t *n);
+
+/**
+ * @brief Recursively show all preselection feedbacks for the given node and its children
+ *
+ * @param m the monitor
+ * @param d the desktop
+ * @param n the node
+ */
 void show_presel_feedbacks(monitor_t *m, desktop_t *d, node_t *n);
+
+/**
+ * @brief Recursively hide all preselection feedbacks for the given node and its children
+ *
+ * @param m the monitor
+ * @param d the desktop
+ * @param n the node
+ */
 void hide_presel_feedbacks(monitor_t *m, desktop_t *d, node_t *n);
 void update_colors(void);
 void update_colors_in(node_t *n, desktop_t *d, monitor_t *m);
 void draw_border(node_t *n, bool focused_node, bool focused_monitor);
+
+/**
+ * @brief Give a colored border to the given window
+ *
+ * @param win the window
+ * @param border_color_pxl the border color
+ */
 void window_draw_border(xcb_window_t win, uint32_t border_color_pxl);
 void adopt_orphans(void);
+
+
+/**
+ * @brief Get the border color, depending on if the node or monitor is focused
+ *
+ * @param focused_node true if the node is focused, else false
+ * @param focused_monitor true if the monitor is focused, else false
+ * @return uint32_t: the border color
+ */
 uint32_t get_border_color(bool focused_node, bool focused_monitor);
 void initialize_floating_rectangle(node_t *n);
 xcb_rectangle_t get_window_rectangle(node_t *n);
@@ -56,18 +88,59 @@ void query_pointer(xcb_window_t *win, xcb_point_t *pt);
 void update_motion_recorder(void);
 void enable_motion_recorder(xcb_window_t win);
 void disable_motion_recorder(void);
+
+/**
+ * @brief Change the border width of a window
+ *
+ * @param win the window
+ * @param bw the new border width
+ */
 void window_border_width(xcb_window_t win, uint32_t bw);
+
+/**
+ * @brief Move a window
+ *
+ * @param win the window
+ * @param x the new x position of the top left corner
+ * @param y the new y position of the top left corner
+ */
 void window_move(xcb_window_t win, int16_t x, int16_t y);
+
+/**
+ * @brief Resize a window
+ *
+ * @param win the window
+ * @param w the new width
+ * @param h the new height
+ */
 void window_resize(xcb_window_t win, uint16_t w, uint16_t h);
+
+/**
+ * @brief Move & resize the given window
+ *
+ * @param win the window
+ * @param x the new x position of the top left corner
+ * @param y the new y position of the top left corner
+ * @param w the new width
+ * @param h the new height
+ */
 void window_move_resize(xcb_window_t win, int16_t x, int16_t y, uint16_t w, uint16_t h);
-void window_center(monitor_t *m, client_t *c);
+
 
 /**
  * @brief TODO
  *
+ * @param m
+ * @param c
+ */
+void window_center(monitor_t *m, client_t *c);
+
+/**
+ * @brief Change the window stacking order
+ *
  * @param w1
  * @param w2
- * @param mode
+ * @param mode The stacking mode
  */
 void window_stack(xcb_window_t w1, xcb_window_t w2, uint32_t mode);
 
