@@ -27,9 +27,47 @@
 
 #define DEFAULT_DESK_NAME    "Desktop"
 
+/**
+ * @brief Activate the given desktop
+ *
+ * @param m the monitor
+ * @param d the desktop
+ * @return true if succesfull
+ */
 bool activate_desktop(monitor_t *m, desktop_t *d);
+
+/**
+ * @brief TODO: explain
+ *
+ * @param ref
+ * @param dst
+ * @param dir
+ * @param sel
+ * @return true
+ * @return false
+ */
 bool find_closest_desktop(coordinates_t *ref, coordinates_t *dst, cycle_dir_t dir, desktop_select_t *sel);
+
+/**
+ * @brief TODO: explain
+ *
+ * @param ref
+ * @param dst
+ * @param sel
+ * @return true
+ * @return false
+ */
 bool find_any_desktop(coordinates_t *ref, coordinates_t *dst, desktop_select_t *sel);
+
+/**
+ * @brief Set the layout for the given desktop
+ *
+ * @param m the monitor
+ * @param d the desktop
+ * @param l the layout
+ * @param user specify if the given layout is a user layout (TODO: is this correct? does it need more info?)
+ * @return true if succesfull
+ */
 bool set_layout(monitor_t *m, desktop_t *d, layout_t l, bool user);
 
 /**
@@ -39,11 +77,59 @@ bool set_layout(monitor_t *m, desktop_t *d, layout_t l, bool user);
  * @param d the desktop to update
  */
 void handle_presel_feedbacks(monitor_t *m, desktop_t *d);
+
+/**
+ * @brief Transfer the given desktop to a new monitor
+ *
+ * @param ms the source monitor
+ * @param md the destination monitor
+ * @param d the desktop to transfer
+ * @param follow true if the new monitor must be active
+ * @return true if succesfully transfered
+ */
 bool transfer_desktop(monitor_t *ms, monitor_t *md, desktop_t *d, bool follow);
+
+/**
+ * @brief Create a new desktop and return it
+ *
+ * @param name
+ * @param id
+ * @return desktop_t* - the new desktop
+ */
 desktop_t *make_desktop(const char *name, uint32_t id);
+
+/**
+ * @brief Rename the given desktop
+ *
+ * @param m the monitor
+ * @param d the desktop
+ * @param name the new name
+ */
 void rename_desktop(monitor_t *m, desktop_t *d, const char *name);
+
+/**
+ * @brief Add the desktop to the end of the desktop list of the given monitor
+ *
+ * @param m the monitor
+ * @param d the desktop
+ */
 void insert_desktop(monitor_t *m, desktop_t *d);
+
+/**
+ * @brief Add a new desktop to the given monitor
+ *
+ * @param m the monitor
+ * @param d the new desktop
+ */
 void add_desktop(monitor_t *m, desktop_t *d);
+
+/**
+ * @brief Find the desktop by id
+ *
+ * @param id the desktop id
+ * @param m the monitor to search on
+ * @return desktop_t* - the desktop, or NULL if not found
+ */
 desktop_t *find_desktop_in(uint32_t id, monitor_t *m);
 
 /**
