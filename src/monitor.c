@@ -42,11 +42,14 @@
 monitor_t *make_monitor(const char *name, xcb_rectangle_t *rect, uint32_t id)
 {
 	monitor_t *m = calloc(1, sizeof(monitor_t));
+	// if id is not given, generate one
 	if (id == XCB_NONE) {
 		m->id = xcb_generate_id(dpy);
 	}
 	m->randr_id = XCB_NONE;
+	// set the name to the given name, or the DEFAULT_MON_NAME if no name is given
 	snprintf(m->name, sizeof(m->name), "%s", name == NULL ? DEFAULT_MON_NAME : name);
+	// set the defaults
 	m->padding = padding;
 	m->border_width = border_width;
 	m->window_gap = window_gap;
