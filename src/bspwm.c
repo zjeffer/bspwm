@@ -30,6 +30,7 @@
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
 #include <stdbool.h>
@@ -228,6 +229,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// set the CLOEXEC flag on the socket
+	fcntl(sock_fd, F_SETFD, FD_CLOEXEC | fcntl(sock_fd, F_GETFD));
+
 	// install signal handlers for every signal
 	signal(SIGINT, sig_handler);
 	signal(SIGHUP, sig_handler);
@@ -334,6 +338,8 @@ int main(int argc, char *argv[])
 
 	// if bspwm is restarting, restart with the same cmdline args
 	if (restart) {
+		fcntl(sock_fd, F_SETFD, ~FD_CLOEXEC & fcntl(sock_fd, F_GETFD));
+
 		int rargc;
 		for (rargc = 0; rargc < argc; rargc++) {
 			if (streq("-s", argv[rargc])) {

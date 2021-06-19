@@ -190,6 +190,17 @@ presel_t *make_presel(void)
 	return p;
 }
 
+void set_type(node_t *n, split_type_t typ)
+{
+	if (n == NULL) {
+		return;
+	}
+
+	n->split_type = typ;
+	update_constraints(n);
+	rebuild_constraints_towards_root(n);
+}
+
 void set_ratio(node_t *n, double rat)
 {
 	if (n == NULL) {
@@ -433,8 +444,6 @@ node_t *insert_node(monitor_t *m, desktop_t *d, node_t *n, node_t *f)
 		}
 	}
 
-	m->sticky_count += sticky_count(n);
-
 	propagate_flags_upward(m, d, n);
 
 	if (d->focus == NULL && is_focusable(n)) {
@@ -448,6 +457,7 @@ void insert_receptacle(monitor_t *m, desktop_t *d, node_t *n)
 {
 	node_t *r = make_node(XCB_NONE);
 	insert_node(m, d, r, n);
+	put_status(SBSC_MASK_NODE_ADD, "node_add 0x%08X 0x%08X 0x%08X 0x%08X\n", m->id, d->id, n->id, r->id);
 
 	if (single_monocle && d->layout == LAYOUT_MONOCLE && tiled_count(d->root, true) > 1) {
 		set_layout(m, d, d->user_layout, false);
@@ -1314,10 +1324,6 @@ void unlink_node(monitor_t *m, desktop_t *d, node_t *n)
 
 	node_t *p = n->parent;
 
-	if (m->sticky_count > 0) {
-		m->sticky_count -= sticky_count(n);
-	}
-
 	if (p == NULL) {
 		d->root = NULL;
 		d->focus = NULL;
@@ -1401,13 +1407,16 @@ void kill_node(monitor_t *m, desktop_t *d, node_t *n)
 		return;
 	}
 
-	for (node_t *f = first_extrema(n); f != NULL; f = next_leaf(f, n)) {
-		if (f->client != NULL) {
-			xcb_kill_client(dpy, f->id);
+	if (IS_RECEPTACLE(n)) {
+		put_status(SBSC_MASK_NODE_REMOVE, "node_remove 0x%08X 0x%08X 0x%08X\n", m->id, d->id, n->id);
+		remove_node(m, d, n);
+	} else {
+		for (node_t *f = first_extrema(n); f != NULL; f = next_leaf(f, n)) {
+			if (f->client != NULL) {
+				xcb_kill_client(dpy, f->id);
+			}
 		}
 	}
-
-	remove_node(m, d, n);
 }
 
 void remove_node(monitor_t *m, desktop_t *d, node_t *n)
@@ -1420,6 +1429,9 @@ void remove_node(monitor_t *m, desktop_t *d, node_t *n)
 	history_remove(d, n, true);
 	remove_stack_node(n);
 	cancel_presel_in(m, d, n);
+	if (m->sticky_count > 0 && d == m->desk) {
+		m->sticky_count -= sticky_count(n);
+	}
 	clients_count -= clients_count_in(n);
 	if (is_descendant(grabbed_node, n)) {
 		grabbed_node = NULL;
@@ -1601,7 +1613,8 @@ bool transfer_node(monitor_t *ms, desktop_t *ds, node_t *ns, monitor_t *md, desk
 		return false;
 	}
 
-	if (sticky_still && ms->sticky_count > 0 && sticky_count(ns) > 0 && dd != md->desk) {
+	unsigned int sc = (ms->sticky_count > 0 && ds == ms->desk) ? sticky_count(ns) : 0;
+	if (sticky_still && sc > 0 && dd != md->desk) {
 		return false;
 	}
 
@@ -1623,6 +1636,8 @@ bool transfer_node(monitor_t *ms, desktop_t *ds, node_t *ns, monitor_t *md, desk
 		if (ns->client == NULL || monitor_from_client(ns->client) != md) {
 			adapt_geometry(&ms->rectangle, &md->rectangle, ns);
 		}
+		ms->sticky_count -= sc;
+		md->sticky_count += sc;
 	}
 
 	if (ds != dd) {
